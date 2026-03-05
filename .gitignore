@@ -1,0 +1,9 @@
+﻿Library
+Logs
+*.csproj
+*.sln
+Temp
+.idea
+obj
+UserSettings
+*.blend1
