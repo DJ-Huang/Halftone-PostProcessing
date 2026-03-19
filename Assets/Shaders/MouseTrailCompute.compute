@@ -1,0 +1,41 @@
+#pragma kernel UpdateTrail
+
+RWTexture2D<float4> Result;
+
+float2 _Resolution;
+float2 _MousePos;      // Mouse UV Pos (0.0 - 1.0)
+float2 _MouseVelocity;
+float _Radius;
+float _Decay;
+float _DeltaTime;
+
+[numthreads(8, 8, 1)]
+void UpdateTrail (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_Resolution.x || id.y >= (uint)_Resolution.y) return;
+
+    // apply current color fade-out
+    float4 currentColor = Result[id.xy];
+    currentColor.rg *= _Decay;
+
+    float decayFactor = pow(_Decay, _DeltaTime * 60.0);
+    currentColor.rg *= decayFactor;
+
+    // Calculate the distance from the current pixel to the mouse position
+    float2 uv = float2(id.xy) / _Resolution;
+    float aspect = _Resolution.x / _Resolution.y;
+    float2 diff = uv - _MousePos;
+    diff.x *= aspect;
+    float dist = length(diff);
+
+    //  If within the brush's range, overlay the current velocity vector
+    if (dist < _Radius)
+    {
+        float intensity = smoothstep(_Radius, 0.0, dist);
+        currentColor.rg += _MouseVelocity * intensity;
+    }
+
+    currentColor.rg = clamp(currentColor.rg, -1.0, 1.0);
+    
+    Result[id.xy] = currentColor;
+}

@@ -16,6 +16,9 @@ public class HalftoneRenderFeature : ScriptableRendererFeature
         [Range(10f, 500f)] public float gridSize = 150f;
         [Range(0f, 1f)] public float dotSize = 0.6f;
         [Range(0.001f, 0.2f)] public float smoothness = 0.05f;
+
+        public bool offsetUV = false;
+        public bool lumaSize = false;
     }
     
     [SerializeField] HalftoneSettings settings =  new HalftoneSettings();
@@ -40,9 +43,11 @@ public class HalftoneRenderFeature : ScriptableRendererFeature
 
     class HalftoneRenderFeaturePass : ScriptableRenderPass
     {
-        private static readonly int GridSizeId = Shader.PropertyToID("_GridSize");
-        private static readonly int DotSizeId = Shader.PropertyToID("_DotSize");
-        private static readonly int SmoothnessId = Shader.PropertyToID("_Smoothness");
+        private static readonly int _GridSize = Shader.PropertyToID("_GridSize");
+        private static readonly int _DotSize = Shader.PropertyToID("_DotSize");
+        private static readonly int _Smoothness = Shader.PropertyToID("_Smoothness");
+        private static readonly int _OffsetUV = Shader.PropertyToID("_OffsetUV");
+        private static readonly int _LumaSize = Shader.PropertyToID("_LumaSize");
         
         readonly HalftoneSettings settings;
         
@@ -78,9 +83,11 @@ public class HalftoneRenderFeature : ScriptableRendererFeature
             UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
             TextureHandle activeColor = resourceData.activeColorTexture;
             
-            settings.halftoneMaterial.SetFloat(GridSizeId, settings.gridSize);
-            settings.halftoneMaterial.SetFloat(DotSizeId, settings.dotSize);
-            settings.halftoneMaterial.SetFloat(SmoothnessId, settings.smoothness);
+            settings.halftoneMaterial.SetFloat(_GridSize, settings.gridSize);
+            settings.halftoneMaterial.SetFloat(_DotSize, settings.dotSize);
+            settings.halftoneMaterial.SetFloat(_Smoothness, settings.smoothness);
+            settings.halftoneMaterial.SetFloat(_OffsetUV, settings.offsetUV ? 1 : 0);
+            settings.halftoneMaterial.SetFloat(_LumaSize, settings.lumaSize ? 1 : 0);
             
             RenderTextureDescriptor desc = cameraData.cameraTargetDescriptor;
             desc.depthBufferBits = 0;

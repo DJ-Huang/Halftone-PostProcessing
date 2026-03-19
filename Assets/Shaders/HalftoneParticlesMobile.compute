@@ -1,0 +1,100 @@
+#pragma kernel InitParticles
+#pragma kernel UpdateParticles
+
+struct Particle
+{
+    float4 posData; // x, y: current UV pos | z, w: original anchor UV pos
+    float4 velData; // x, y: velocity | z: dynamic size | w: random seed / padding
+};
+
+RWStructuredBuffer<Particle> _Particles;
+
+// Global Uniforms
+float2 _Resolution;
+float2 _MousePos;
+float  _MouseForce;
+float  _DeltaTime;
+uint   _GridSize;
+
+float _SpringStiffness; // k
+float _Damping; // c
+
+// -----------------------------------------------------------------------------
+// Kernel: Initialization
+// -----------------------------------------------------------------------------
+[numthreads(64, 1, 1)] // 使用 64 以完美适配 Adreno (Warp Size 32/64)
+void InitParticles(uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x;
+    uint totalParticles = _GridSize * _GridSize;
+    if (index >= totalParticles) return;
+
+    // 1D Index to 2D Grid
+    uint gridX = index % _GridSize;
+    uint gridY = index / _GridSize;
+
+    // Staggered Grid Offset
+    float offsetX = (gridY % 2 == 1) ? 0.5 : 0.0;
+    float2 uv = (float2(gridX + offsetX, gridY) + 0.5) / float(_GridSize);
+
+    Particle p;
+    p.posData = float4(uv, uv); // current = original = uv
+    p.velData = float4(0.0, 0.0, 1.0, frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453)); 
+    
+    _Particles[index] = p;
+}
+
+// -----------------------------------------------------------------------------
+// Kernel: Physics Simulation
+// [Mobile Optimization: FP32 for Integrators]
+// 积分器必须使用 float (FP32)，绝不能用 half，否则几秒后粒子位置会因精度丢失而崩溃
+// -----------------------------------------------------------------------------
+[numthreads(64, 1, 1)]
+void UpdateParticles(uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x;
+    if (index >= _GridSize * _GridSize) return;
+
+    Particle p = _Particles[index];
+
+    // Unpack data
+    float2 currentPos  = p.posData.xy;
+    float2 originalPos = p.posData.zw;
+    float2 velocity    = p.velData.xy;
+
+    // 1. Mouse Repulsion Force (Inverse Square-ish Falloff)
+    float2 dirToMouse = currentPos - _MousePos;
+    dirToMouse.x *= _Resolution.x / _Resolution.y; // Aspect ratio correction
+
+    float dist = length(dirToMouse);
+    float2 force = float2(0.0, 0.0);
+
+    if (dist < 0.2)
+    {
+        float pushFactor = smoothstep(0.2, 0.0, dist);
+        // Avoid division by zero
+        force += (dirToMouse / (dist + 0.0001)) * pushFactor * _MouseForce; 
+    }
+
+    // 2. Spring Hooke's Law (F = -k * x)
+    float2 displacement = currentPos - originalPos;
+    float2 springForce = -_SpringStiffness * displacement;
+
+    // 3. Damping (F = -c * v)
+    float2 dampingForce = -_Damping * velocity;
+
+    // 4. Euler Integration
+    force += springForce + dampingForce;
+    velocity += force * _DeltaTime;
+    currentPos += velocity * _DeltaTime;
+
+    // Pack data back
+    p.posData.xy = currentPos;
+    p.velData.xy = velocity;
+    
+    // Dynamic size calculation based on velocity (optional stylistic choice)
+    p.velData.z = 1.0 - smoothstep(0.0, 2.0, length(velocity)); 
+
+    // Write back to VRAM
+    _Particles[index] = p;
+}

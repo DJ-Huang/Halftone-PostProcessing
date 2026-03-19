@@ -29,6 +29,8 @@ Shader "Hidden/PostProcessing/Halftone"
             float _GridSize;
             float _DotSize;
             float _Smoothness;
+            float _OffsetUV;
+            float _LumaSize;
 
             float4 Frag (Varyings input) : SV_Target
             {
@@ -39,7 +41,6 @@ Shader "Hidden/PostProcessing/Halftone"
                 float aspect = _ScreenParams.x / _ScreenParams.y;
                 float2 aspectUV = uv * float2(aspect, 1.0);
 
-
                 float2 gridUV = aspectUV * _GridSize;
                 float2 cellId = floor(gridUV);
                 float2 cellUv = frac(gridUV);
@@ -47,17 +48,18 @@ Shader "Hidden/PostProcessing/Halftone"
                 float2 referenceUV = (cellId + 0.5) / _GridSize;
                 referenceUV.x /= aspect;
 
+
                 half4 referenceColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, referenceUV);
                 half4 currentColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
 
-                float luma = dot(referenceColor.rgb, float3(0.2126, 0.7152, 0.0722));
+                float luma = dot(referenceColor.rgb, float3(0.2126, 0.7152, 0.0722)) * _LumaSize;
                 float radius = _DotSize * (1.0 - luma);
 
                 float dist = length(cellUv - 0.5);
                 float circle = smoothstep(radius + _Smoothness, radius - _Smoothness, dist);
 
-                half3 finalColor = lerp(referenceColor.rgb, currentColor.rgb, circle);
-                return half4(finalColor, 1.0);
+                half3 finalColor = lerp(0, referenceColor, circle);
+                return half4(finalColor.rgb, 1.0);
             }
             
             ENDHLSL
