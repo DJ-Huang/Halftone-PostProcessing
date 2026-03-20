@@ -1,46 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6550521229163863953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97b90fe80e4e0a246886be95b23addf0, type: 3}
-  m_Name: HalftoneFluidFeature
-  m_EditorClassIdentifier: Assembly-CSharp::HalftoneFluidFeature
-  m_Active: 0
-  settings:
-    particleCompute: {fileID: 7200000, guid: d466b651d6ccb274c842b6cb0dc5947e, type: 3}
-    blobMaterial: {fileID: 2100000, guid: e85d05847907c7a4ab2ce35fc2e78953, type: 2}
-    compositeMaterial: {fileID: 2100000, guid: d9c187c08f868d143aeac16ae89812cf, type: 2}
-    gridSize: 100
-    dotBaseSize: 0.003
-    mouseForce: 0.6
-    springStiffness: 1
-    damping: 1
-    smoothTime: 0.01
---- !u!114 &-5883259889969378843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71aa428b516df5447a8b68322ab1406e, type: 3}
-  m_Name: HalftoneInteractiveFeature
-  m_EditorClassIdentifier: Assembly-CSharp::HalftoneInteractiveFeature
-  m_Active: 0
-  settings:
-    halftoneMaterial: {fileID: 2100000, guid: 89fce422bc466aa47af9ad6bd832896b, type: 2}
-    pixelSize: 8
-    dotSize: 2
-    mouseStrength: 50
 --- !u!114 &-1878332245247344467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,11 +54,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 0}
   m_RendererFeatures:
   - {fileID: -1878332245247344467}
-  - {fileID: 6243169326212740987}
-  - {fileID: -5883259889969378843}
   - {fileID: 6562754464338867084}
-  - {fileID: -6550521229163863953}
-  m_RendererFeatureMap: adc0de57c6d2eee57b7786a96c31a456e54912094d765aae8cf306136a96135b6f6008f2a5df17a5
+  m_RendererFeatureMap: adc0de57c6d2eee58cf306136a96135b
   m_UseNativeRenderPass: 0
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -128,27 +84,6 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
---- !u!114 &6243169326212740987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a052f7a5a39420d45b8315a6c6b3fd20, type: 3}
-  m_Name: HalftoneRenderFeature
-  m_EditorClassIdentifier: Assembly-CSharp::HalftoneRenderFeature
-  m_Active: 0
-  settings:
-    halftoneMaterial: {fileID: 2100000, guid: 6054a0f62beb9064c9a21fcd06235391, type: 2}
-    renderPassEvent: 600
-    gridSize: 33
-    dotSize: 0.4
-    smoothness: 0.001
-    offsetUV: 0
-    lumaSize: 0
 --- !u!114 &6562754464338867084
 MonoBehaviour:
   m_ObjectHideFlags: 0

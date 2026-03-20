@@ -22,7 +22,7 @@ float _Damping; // c
 // -----------------------------------------------------------------------------
 // Kernel: Initialization
 // -----------------------------------------------------------------------------
-[numthreads(64, 1, 1)] // 使用 64 以完美适配 Adreno (Warp Size 32/64)
+[numthreads(64, 1, 1)]
 void InitParticles(uint3 id : SV_DispatchThreadID)
 {
     uint index = id.x;
